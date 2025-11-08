@@ -1,0 +1,68 @@
+services:
+  redis:
+    image: redis:7
+    container_name: redis
+    command: ["redis-server", "--appendonly", "yes"]
+    ports: ["6379:6379"]
+    volumes: [redis-data:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  weaviate:
+    image: cr.weaviate.io/semitechnologies/weaviate:1.25.7
+    container_name: weaviate
+    ports: ["8080:8080"]
+    environment:
+      QUERY_DEFAULTS_LIMIT: 25
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "true"
+      PERSISTENCE_DATA_PATH: "/var/lib/weaviate"
+      DEFAULT_VECTORIZER_MODULE: "none"
+      ENABLE_MODULES: "none"
+      CLUSTER_HOSTNAME: "bbf5b7d9c7de"
+    volumes: [weaviate-data:/var/lib/weaviate]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/v1/schema"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: api
+    command: ["node", "src/server.js"]
+    env_file: .env
+    environment:
+      PORT: "8000"
+      REDIS_URL: "redis://redis:6379"
+      WEAVIATE_URL: "http://weaviate:8080"
+    ports: ["8000:8000"]
+    volumes:
+      - storage-data:/app/storage          # ⬅️ share storage
+    depends_on:
+      redis: { condition: service_healthy }
+      weaviate: { condition: service_healthy }
+
+  worker:
+    build:
+      context: .
+    container_name: worker
+    command: ["node", "src/pipeline.js"]
+    env_file: .env
+    environment:
+      REDIS_URL: "redis://redis:6379"
+      WEAVIATE_URL: "http://weaviate:8080"
+    volumes:
+      - storage-data:/app/storage          # ⬅️ sama persis
+    depends_on:
+      redis: { condition: service_healthy }
+      weaviate: { condition: service_healthy }
+
+volumes:
+  redis-data:
+  weaviate-data:
+  storage-data:                            # ⬅️ named volume baru

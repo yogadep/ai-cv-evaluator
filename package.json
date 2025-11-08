@@ -1,0 +1,24 @@
+{
+  "name": "ai-cv-evaluator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "bullmq": "^5.63.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "multer": "^2.0.2",
+    "pdfjs-dist": "^5.4.394",
+    "pdfkit": "^0.17.2",
+    "weaviate-ts-client": "^2.2.0",
+    "zod": "^4.1.12"
+  }
+}

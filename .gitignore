@@ -1,0 +1,11 @@
+# Node
+node_modules/
+
+# Env & secrets
+.env
+
+# Uploads & temp
+docs/
+
+# OS
+.DS_Store
