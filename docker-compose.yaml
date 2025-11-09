@@ -42,7 +42,7 @@ services:
       WEAVIATE_URL: "http://weaviate:8080"
     ports: ["8000:8000"]
     volumes:
-      - storage-data:/app/storage          # ⬅️ share storage
+      - ./storage:/app/storage
     depends_on:
       redis: { condition: service_healthy }
       weaviate: { condition: service_healthy }
@@ -57,7 +57,9 @@ services:
       REDIS_URL: "redis://redis:6379"
       WEAVIATE_URL: "http://weaviate:8080"
     volumes:
-      - storage-data:/app/storage          # ⬅️ sama persis
+      - ./storage:/app/storage
+      # only show in docker not in system
+      # - storage-data:/app/storage
     depends_on:
       redis: { condition: service_healthy }
       weaviate: { condition: service_healthy }
@@ -65,4 +67,4 @@ services:
 volumes:
   redis-data:
   weaviate-data:
-  storage-data:                            # ⬅️ named volume baru
+  storage-data:                            
