@@ -93,4 +93,4 @@ export const worker = new Worker(
 );
 
 worker.on('failed', (job, err) => console.error('Job failed', job?.id, err));
-console.log('Worker is running (Gemini free tier)…');
+console.log('Worker is running');
