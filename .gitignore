@@ -9,3 +9,6 @@ docs/
 
 # OS
 .DS_Store
+# runtime uploads
+storage/uploads/*
+!storage/uploads/.gitkeep
