@@ -81,6 +81,24 @@ export const worker = new Worker(
         .replace('{job_title}', job_title)
     );
 
+    // Tambahkan metadata detail ke job untuk PDF
+    await job.updateData({
+        ...job.data,
+        cv_detail: {
+          technical_match: cvParsed.technical_match,
+          experience_level: cvParsed.experience_level,
+          achievements: cvParsed.achievements,
+          cultural_fit: cvParsed.cultural_fit,
+        },
+        project_detail: {
+          correctness: projParsed.correctness,
+          code_quality: projParsed.code_quality,
+          resilience: projParsed.resilience,
+          documentation: projParsed.documentation,
+          creativity: projParsed.creativity,
+        },
+    });
+
     return {
       cv_match_rate: cvAgg.decimal,
       cv_feedback: cvParsed.cv_feedback || '',
