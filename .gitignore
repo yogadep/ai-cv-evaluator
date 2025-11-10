@@ -9,6 +9,11 @@ docs/
 
 # OS
 .DS_Store
-# runtime uploads
+
+# Uploaded CV & Project
 storage/uploads/*
 !storage/uploads/.gitkeep
+
+# Generated evaluation reports
+storage/reports/*
+!storage/reports/.gitkeep
