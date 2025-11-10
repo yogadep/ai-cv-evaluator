@@ -1,15 +1,12 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// API Key dari .env
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// Model chat - pakai gemini-pro yang pasti work
 const CHAT_MODEL = process.env.GEMINI_CHAT_MODEL || "gemini-pro";
 const EMBED_MODEL = process.env.GEMINI_EMBED_MODEL || "text-embedding-004";
 
-/**
- * Generate a chat response (one-shot)
- */
+
+// Generate a chat response (one-shot)
 export async function chatOnce(prompt) {
   try {
     const model = genAI.getGenerativeModel({ model: CHAT_MODEL });
@@ -22,9 +19,8 @@ export async function chatOnce(prompt) {
   }
 }
 
-/**
- * Generate embeddings for RAG (Weaviate, vector search)
- */
+
+// Generate embeddings for RAG (Weaviate, vector search)
 export async function embedText(text) {
   try {
     const model = genAI.getGenerativeModel({ model: EMBED_MODEL });
