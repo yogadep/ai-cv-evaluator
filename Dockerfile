@@ -2,17 +2,17 @@
     FROM node:20-alpine AS base
     WORKDIR /app
     
-    # Install deps only from lockfiles
+    # Install dependencies from lockfiles
     COPY package*.json ./
-    # gunakan npm ci agar konsisten; kalau tanpa package-lock.json, fallback ke install
+    # Use npm ci when lockfile exists; otherwise fall back to npm install
     RUN if [ -f package-lock.json ]; then npm ci --no-audit --no-fund; else npm install --no-audit --no-fund; fi
     
-    # Copy source
+    # Copy source code
     COPY src ./src
     COPY ingestion ./ingestion
-    # Dokumen ground-truth (optional; kalau di-mount saat runtime juga boleh)
+    # Ground-truth documents (optional; can also be mounted at runtime)
     
-    # Pastikan folder upload tersedia saat runtime
+    # Ensure upload folder exists at runtime
     RUN mkdir -p /app/storage/uploads
     
     # Non-root user
@@ -22,12 +22,12 @@
     ENV NODE_ENV=production \
         PORT=8000
     
-    # Uploads disimpan sebagai volume agar persist di container
+    # Persist uploads as a volume
     VOLUME ["/app/storage"]
     
     # API port
     EXPOSE 8000
     
-    # Default jalankan API; untuk worker override CMD di docker-compose
+    # Default: run API; worker overrides CMD via docker-compose
     CMD ["node", "src/server.js"]
     

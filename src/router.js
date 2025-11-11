@@ -8,6 +8,7 @@ import { pdfToText, chunkText } from './pdf.js';
 import { buildReportPdf, ensureDir } from './report.js';
 
 const router = Router();
+// Upload directory
 const uploadDir = path.join(process.cwd(), 'storage', 'uploads');
 fs.mkdirSync(uploadDir, { recursive: true });
 
@@ -93,11 +94,11 @@ router.get('/result/:id/pdf', async (req, res) => {
   
       const result = await job.returnvalue;
   
-      // Siapkan struktur yang kaya supaya PDF ada breakdown komponen
+      // Prepare a clear structure so the PDF shows component breakdowns
       const forPdf = {
         jobId: job.id,
         // candidate: {
-        //   // kalau suatu hari /evaluate bawa metadata kandidat, isi disini; sementara kosong
+        //   // If /evaluate includes candidate metadata later, map it here
         //   name: req.query.name || "",
         //   email: req.query.email || "",
         // },
@@ -105,7 +106,7 @@ router.get('/result/:id/pdf', async (req, res) => {
         cv: {
           decimal: result.cv_match_rate,        // 0–0.20
           feedback: result.cv_feedback || "",
-          detail: job?.data?.cv_detail || job?.data?.cv_detail_json || null, // optional, kalau mau
+          detail: job?.data?.cv_detail || job?.data?.cv_detail_json || null, // optional
         },
         project: {
           score: result.project_score,          // 1–5
@@ -114,7 +115,8 @@ router.get('/result/:id/pdf', async (req, res) => {
         },
         summary: result.overall_summary || "",
       };
-  
+
+      // Output directory for generated PDFs
       const storageDir = path.join(process.cwd(), 'storage', 'reports');
       ensureDir(storageDir);
       const pdfPath = buildReportPdf({

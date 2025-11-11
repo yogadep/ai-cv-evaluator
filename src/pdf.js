@@ -4,18 +4,18 @@ import { createRequire } from "module";
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
 
 const require = createRequire(import.meta.url);
-// folder root pdfjs-dist di node_modules
+// pdfjs-dist root directory inside node_modules
 const pdfjsDistDir = path.dirname(require.resolve("pdfjs-dist/package.json"));
-// path absolut ke standard_fonts/
+// Absolute path to standard_fonts/
 const standardFontDataUrl = path.join(pdfjsDistDir, "standard_fonts/");
 
-// Set sekali di global options (untuk Node)
+// Set once in global options (for Node)
 pdfjsLib.GlobalWorkerOptions.standardFontDataUrl = standardFontDataUrl;
 
 export async function pdfToText(filePath) {
   const dataBuffer = fs.readFileSync(filePath);
 
-  // Opsional: oper juga via getDocument options (double sure)
+  // Optional: also pass through getDocument options for safety
   const loadingTask = pdfjsLib.getDocument({
     data: new Uint8Array(dataBuffer),
     useSystemFonts: true,

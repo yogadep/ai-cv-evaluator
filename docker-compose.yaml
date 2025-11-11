@@ -42,7 +42,10 @@ services:
       WEAVIATE_URL: "http://weaviate:8080"
     ports: ["8000:8000"]
     volumes:
-      - ./storage:/app/storage
+      # Use bind mount below if you want files visible on host:
+      # - ./storage:/app/storage
+      - storage-data:/app/storage
+
     depends_on:
       redis: { condition: service_healthy }
       weaviate: { condition: service_healthy }
@@ -57,9 +60,10 @@ services:
       REDIS_URL: "redis://redis:6379"
       WEAVIATE_URL: "http://weaviate:8080"
     volumes:
-      - ./storage:/app/storage
-      # only show in docker not in system
-      # - storage-data:/app/storage
+      # Use bind mount below if you want files visible on host:
+      # - ./storage:/app/storage
+      # Named volume: files stay inside containers (not on host)
+      - storage-data:/app/storage
     depends_on:
       redis: { condition: service_healthy }
       weaviate: { condition: service_healthy }
