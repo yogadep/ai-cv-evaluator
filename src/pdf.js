@@ -1,13 +1,25 @@
 import fs from "fs";
+import path from "path";
+import { createRequire } from "module";
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
 
-export async function pdfToText(path) {
-  const dataBuffer = fs.readFileSync(path);
+const require = createRequire(import.meta.url);
+// folder root pdfjs-dist di node_modules
+const pdfjsDistDir = path.dirname(require.resolve("pdfjs-dist/package.json"));
+// path absolut ke standard_fonts/
+const standardFontDataUrl = path.join(pdfjsDistDir, "standard_fonts/");
 
-  // Load dokumen (pakai legacy build yg stabil di Node)
+// Set sekali di global options (untuk Node)
+pdfjsLib.GlobalWorkerOptions.standardFontDataUrl = standardFontDataUrl;
+
+export async function pdfToText(filePath) {
+  const dataBuffer = fs.readFileSync(filePath);
+
+  // Opsional: oper juga via getDocument options (double sure)
   const loadingTask = pdfjsLib.getDocument({
     data: new Uint8Array(dataBuffer),
-    useSystemFonts: true, // bantu font fallback di container
+    useSystemFonts: true,
+    standardFontDataUrl, 
   });
 
   const pdf = await loadingTask.promise;
@@ -16,8 +28,7 @@ export async function pdfToText(path) {
   for (let i = 1; i <= pdf.numPages; i++) {
     const page = await pdf.getPage(i);
     const content = await page.getTextContent();
-    const pageText = content.items.map((it) => it.str).join(" ");
-    fullText += pageText + "\n";
+    fullText += content.items.map((it) => it.str).join(" ") + "\n";
   }
   return fullText.trim();
 }

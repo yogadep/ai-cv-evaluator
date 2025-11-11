@@ -42,6 +42,7 @@ export const worker = new Worker(
   'eval',
   async (job) => {
     const { job_title, cv_path, report_path } = job.data;
+    console.log(`[JOB ${job.id}] Start evaluation`);
 
     // RAG contexts
     const jobDesc    = (await search(weav, job_title, 'job_desc', 6)).join('\n');
