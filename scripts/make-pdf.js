@@ -1,4 +1,3 @@
-// scripts/make-pdfs.js
 import fs from "fs";
 import PDFDocument from "pdfkit";
 

@@ -42,6 +42,7 @@ export const worker = new Worker(
   'eval',
   async (job) => {
     const { job_title, cv_path, report_path } = job.data;
+    console.log(`[JOB ${job.id}] Start evaluation`);
 
     // RAG contexts
     const jobDesc    = (await search(weav, job_title, 'job_desc', 6)).join('\n');
@@ -80,6 +81,24 @@ export const worker = new Worker(
         .replace('{project_result}', JSON.stringify(projParsed))
         .replace('{job_title}', job_title)
     );
+
+    // Tambahkan metadata detail ke job untuk PDF
+    await job.updateData({
+        ...job.data,
+        cv_detail: {
+          technical_match: cvParsed.technical_match,
+          experience_level: cvParsed.experience_level,
+          achievements: cvParsed.achievements,
+          cultural_fit: cvParsed.cultural_fit,
+        },
+        project_detail: {
+          correctness: projParsed.correctness,
+          code_quality: projParsed.code_quality,
+          resilience: projParsed.resilience,
+          documentation: projParsed.documentation,
+          creativity: projParsed.creativity,
+        },
+    });
 
     return {
       cv_match_rate: cvAgg.decimal,

@@ -5,6 +5,7 @@ import fs from 'fs';
 import z from 'zod';
 import { evalQueue } from './queue.js';
 import { pdfToText, chunkText } from './pdf.js';
+import { buildReportPdf, ensureDir } from './report.js';
 
 const router = Router();
 const uploadDir = path.join(process.cwd(), 'storage', 'uploads');
@@ -78,5 +79,56 @@ router.get('/result/:id', async (req, res) => {
   if (state === 'failed') return res.json({ id: job.id, status: 'failed' });
   return res.json({ id: job.id, status: state === 'active' ? 'processing' : 'queued' });
 });
+
+
+router.get('/result/:id/pdf', async (req, res) => {
+    try {
+      const job = await evalQueue.getJob(req.params.id);
+      if (!job) return res.status(404).json({ error: 'job not found' });
+  
+      const state = await job.getState();
+      if (state !== 'completed') {
+        return res.status(400).json({ error: `job is ${state}, PDF available only after completed` });
+      }
+  
+      const result = await job.returnvalue;
+  
+      // Siapkan struktur yang kaya supaya PDF ada breakdown komponen
+      const forPdf = {
+        jobId: job.id,
+        // candidate: {
+        //   // kalau suatu hari /evaluate bawa metadata kandidat, isi disini; sementara kosong
+        //   name: req.query.name || "",
+        //   email: req.query.email || "",
+        // },
+        // jobTitle: job?.data?.job_title || req.query.job_title || "",
+        cv: {
+          decimal: result.cv_match_rate,        // 0–0.20
+          feedback: result.cv_feedback || "",
+          detail: job?.data?.cv_detail || job?.data?.cv_detail_json || null, // optional, kalau mau
+        },
+        project: {
+          score: result.project_score,          // 1–5
+          feedback: result.project_feedback || "",
+          detail: job?.data?.project_detail || job?.data?.project_detail_json || null, // optional
+        },
+        summary: result.overall_summary || "",
+      };
+  
+      const storageDir = path.join(process.cwd(), 'storage', 'reports');
+      ensureDir(storageDir);
+      const pdfPath = buildReportPdf({
+        outDir: storageDir,
+        ...forPdf
+      });
+  
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${path.basename(pdfPath)}"`);
+      fs.createReadStream(pdfPath).pipe(res);
+    } catch (e) {
+      console.error('PDF error:', e);
+      res.status(500).json({ error: 'failed to build pdf' });
+    }
+  });
 
 export default router;
