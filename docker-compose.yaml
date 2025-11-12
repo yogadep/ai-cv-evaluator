@@ -43,8 +43,8 @@ services:
     ports: ["8000:8000"]
     volumes:
       # Use bind mount below if you want files visible on host:
-      # - ./storage:/app/storage
-      - storage-data:/app/storage
+      - ./storage:/app/storage
+      # - storage-data:/app/storage
 
     depends_on:
       redis: { condition: service_healthy }
@@ -61,9 +61,9 @@ services:
       WEAVIATE_URL: "http://weaviate:8080"
     volumes:
       # Use bind mount below if you want files visible on host:
-      # - ./storage:/app/storage
+      - ./storage:/app/storage
       # Named volume: files stay inside containers (not on host)
-      - storage-data:/app/storage
+      # - storage-data:/app/storage
     depends_on:
       redis: { condition: service_healthy }
       weaviate: { condition: service_healthy }
